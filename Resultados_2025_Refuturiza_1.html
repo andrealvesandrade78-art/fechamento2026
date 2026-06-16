@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados 2025 — Refuturiza</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --primary: #F47A20; --primary-dark: #d4650f;
+    --green: #1B5E4B;   --green-light: #2d7a62;
+    --bg: #FDF6EE;      --card: #ffffff;
+    --border: #e8ddd0;  --text: #1a1a1a;
+    --muted: #6b6356;   --danger: #d73b3b;
+    --success: #1B5E4B; --warning: #e8a020;
+    --shadow: 0 2px 12px rgba(180,130,80,0.10);
+    --shadow-md: 0 4px 24px rgba(180,130,80,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { background: var(--green); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+  .header-logo { font-size: 22px; font-weight: 700; color: white; letter-spacing: -0.5px; }
+  .header-logo span { color: var(--primary); }
+  .header-meta { font-size: 12px; color: rgba(255,255,255,0.7); text-align: right; }
+  .header-meta strong { color: white; }
+
+  .tabs-bar { background: var(--green); padding: 0 40px; display: flex; gap: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .tab-btn { padding: 10px 20px; background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-family: inherit; }
+  .tab-btn:hover { color: white; }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .content { padding: 32px 40px; max-width: 1440px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi-card { background: var(--card); border-radius: 12px; padding: 20px 24px; box-shadow: var(--shadow); border-left: 4px solid transparent; }
+  .kpi-card.accent-orange { border-left-color: var(--primary); }
+  .kpi-card.accent-green  { border-left-color: var(--green); }
+  .kpi-card.accent-red    { border-left-color: var(--danger); }
+  .kpi-card.accent-yellow { border-left-color: var(--warning); }
+  .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
+  .kpi-sub { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge.up   { background: #d4edda; color: #1b5e20; }
+  .badge.down { background: #fde8e8; color: #c0392b; }
+  .badge.neutral { background: #e8f0fe; color: #1a56db; }
+
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .chart-card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); }
+  .chart-card.full-width { grid-column: 1 / -1; }
+  .chart-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .chart-subtitle { font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+  .chart-container { position: relative; height: 280px; }
+  .chart-container.tall { height: 340px; }
+
+  .dre-table-wrap { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
+  .dre-table-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .dre-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .dre-table th { background: #f5ede3; padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; text-align: right; white-space: nowrap; }
+  .dre-table th:first-child { text-align: left; }
+  .dre-table td { padding: 8px 14px; border-bottom: 1px solid #f0e8df; text-align: right; white-space: nowrap; }
+  .dre-table td:first-child { text-align: left; }
+  .dre-table tr:last-child td { border-bottom: none; }
+  .dre-table tr.group-header td { background: #fdf0e6; font-weight: 700; font-size: 13px; color: var(--green); border-top: 2px solid var(--border); }
+  .dre-table tr.sub-row td:first-child { padding-left: 28px; color: var(--muted); font-size: 12px; }
+  .dre-table tr.total-row td { background: var(--green); color: white; font-weight: 700; border-top: 2px solid var(--green-light); }
+  .dre-table tr.highlight-row td { background: #fff8f0; font-weight: 600; }
+  .pos { color: var(--success); font-weight: 600; }
+  .neg { color: var(--danger); font-weight: 600; }
+  .var-pos { color: var(--success); }
+  .var-neg { color: var(--danger); }
+
+  .month-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+  .month-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text); font-family: inherit; transition: all 0.15s; }
+  .month-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .month-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+  .ytd-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .ytd-card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); text-align: center; }
+  .ytd-card .title { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .ytd-card .main  { font-size: 32px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+  .ytd-card .sub   { font-size: 13px; color: var(--muted); }
+
+  .footnote { font-size: 11px; color: var(--muted); margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .charts-grid .chart-card.full-width { grid-column: 1; }
+    .content { padding: 20px; } .header { padding: 0 20px; } .tabs-bar { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">refuturiza<span>.</span></div>
+  <div class="header-meta">Relatório de Resultados 2025<br><strong>Janeiro — Dezembro · Realizado Completo</strong></div>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('ytd',this)">YTD / Visão Geral</button>
+  <button class="tab-btn" onclick="showTab('mensal',this)">Mensal</button>
+  <button class="tab-btn" onclick="showTab('dre',this)">DRE Completa</button>
+  <button class="tab-btn" onclick="showTab('despesas',this)">Despesas</button>
+  <button class="tab-btn" onclick="showTab('receitas',this)">Receitas</button>
+</div>
+
+<div class="content">
+
+<!-- ===== YTD ===== -->
+<div id="tab-ytd" class="tab-panel active">
+  <div class="ytd-summary">
+    <div class="ytd-card">
+      <div class="title">Receita Total 2025</div>
+      <div class="main">R$ 22,8M</div>
+      <div class="sub">Orçado: R$ 29,6M · Atingimento: <strong>76,9%</strong></div>
+    </div>
+    <div class="ytd-card">
+      <div class="title">EBITDA 2025</div>
+      <div class="main" style="color:var(--primary)">R$ 3,02M</div>
+      <div class="sub">Margem: <strong>13,2%</strong> · Orç.: 7,0%</div>
+    </div>
+    <div class="ytd-card">
+      <div class="title">Lucro Líquido 2025</div>
+      <div class="main" style="color:var(--green)">R$ 1,40M</div>
+      <div class="sub">Margem: <strong>6,1%</strong></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">Receita Dez/25</div>
+      <div class="kpi-value">R$ 2,30M</div>
+      <div class="kpi-sub"><span class="badge up">▲ melhor mês</span> do ano</div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">EBITDA Dez/25</div>
+      <div class="kpi-value">R$ 457K</div>
+      <div class="kpi-sub">Margem: <strong>19,8%</strong></div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">Lucro Líquido Dez/25</div>
+      <div class="kpi-value">R$ 299K</div>
+      <div class="kpi-sub">Margem: <strong>13,0%</strong></div>
+    </div>
+    <div class="kpi-card accent-yellow">
+      <div class="kpi-label">Receita B2B Total</div>
+      <div class="kpi-value">R$ 12,7M</div>
+      <div class="kpi-sub">Mix: <strong>55,7%</strong> da receita bruta</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card full-width">
+      <div class="chart-title">Evolução Mensal — Receita, Despesas Operacionais e EBITDA</div>
+      <div class="chart-subtitle">Realizado Jan–Dez/25 · Valores em R$ mil</div>
+      <div class="chart-container tall"><canvas id="chartEvolucao"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Receita: Orçado vs Realizado</div>
+      <div class="chart-subtitle">Barras agrupadas · R$ mil</div>
+      <div class="chart-container"><canvas id="chartOrcRealReceita"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">EBITDA Mensal — Orçado vs Realizado</div>
+      <div class="chart-subtitle">R$ mil</div>
+      <div class="chart-container"><canvas id="chartEbitdaMensal"></canvas></div>
+    </div>
+  </div>
+  <div class="footnote">Todos os valores realizados extraídos do arquivo Forecast_2025.xlsx — 12 meses completos.</div>
+</div>
+
+<!-- ===== MENSAL ===== -->
+<div id="tab-mensal" class="tab-panel">
+  <div class="month-selector" id="monthSelector"></div>
+  <div class="kpi-grid" id="kpiMensal"></div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">DRE Simplificada do Mês</div>
+      <div class="chart-subtitle" id="dreSubtitle">—</div>
+      <div class="chart-container"><canvas id="chartDreMes"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Composição das Despesas</div>
+      <div class="chart-subtitle">Breakdown por categoria</div>
+      <div class="chart-container"><canvas id="chartDespDough"></canvas></div>
+    </div>
+  </div>
+  <div class="dre-table-wrap">
+    <div class="dre-table-header">
+      <div class="chart-title" id="dreTableTitle">DRE</div>
+      <div style="font-size:11px;color:var(--muted)">Realizado × Orçado</div>
+    </div>
+    <table class="dre-table">
+      <thead><tr>
+        <th style="width:44%">Linha</th>
+        <th>Orçado</th><th>Realizado</th><th>Var R$</th><th>Var %</th><th>A.V.</th>
+      </tr></thead>
+      <tbody id="dreTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DRE COMPLETA ===== -->
+<div id="tab-dre" class="tab-panel">
+  <div class="section-title">DRE Anual 2025 — Realizado Jan–Dez</div>
+  <div class="dre-table-wrap" style="overflow-x:auto">
+    <table class="dre-table" id="dreAnualTable">
+      <thead><tr>
+        <th style="width:22%;min-width:180px">Linha</th>
+        <th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th>
+        <th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th>
+        <th style="background:#d4edda;color:#1b5e20">Total 2025</th>
+        <th style="background:#fff3e0;color:#bf360c">Total Orç.</th>
+        <th style="background:#e3f2fd;color:#0d47a1">Var %</th>
+      </tr></thead>
+      <tbody id="dreAnualBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DESPESAS ===== -->
+<div id="tab-despesas" class="tab-panel">
+  <div class="kpi-grid">
+    <div class="kpi-card accent-red">
+      <div class="kpi-label">Desp. Pessoal 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 8,92M</div>
+      <div class="kpi-sub">% Rec.: <strong>39,1%</strong></div>
+    </div>
+    <div class="kpi-card accent-yellow">
+      <div class="kpi-label">Desp. G&A 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 2,07M</div>
+      <div class="kpi-sub">% Rec.: <strong>9,1%</strong></div>
+    </div>
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">Desp. Vendas &amp; MKT 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 1,72M</div>
+      <div class="kpi-sub">% Rec.: <strong>7,5%</strong></div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">Desp. Financeiras 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 426K</div>
+      <div class="kpi-sub">% Rec.: <strong>1,9%</strong></div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Composição das Despesas — Total 2025</div>
+      <div class="chart-subtitle">% do total de despesas operacionais</div>
+      <div class="chart-container"><canvas id="chartDespYtd"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Despesas como % da Receita</div>
+      <div class="chart-subtitle">Pessoal, G&A e MKT · Mensal</div>
+      <div class="chart-container"><canvas id="chartPessoalPct"></canvas></div>
+    </div>
+    <div class="chart-card full-width">
+      <div class="chart-title">Despesas Operacionais Mensais — Detalhamento</div>
+      <div class="chart-subtitle">Barras empilhadas por categoria · R$ mil</div>
+      <div class="chart-container tall"><canvas id="chartDespStack"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RECEITAS ===== -->
+<div id="tab-receitas" class="tab-panel">
+  <div class="kpi-grid">
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">B2B Total 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 12,72M</div>
+      <div class="kpi-sub"><span class="badge up">▲ 55,7%</span> do total da receita</div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">B2C Total 2025</div>
+      <div class="kpi-value" style="font-size:22px">R$ 10,10M</div>
+      <div class="kpi-sub"><span class="badge neutral">44,3%</span> do total da receita</div>
+    </div>
+    <div class="kpi-card accent-yellow">
+      <div class="kpi-label">Melhor Mês B2B</div>
+      <div class="kpi-value" style="font-size:22px">Dez/25</div>
+      <div class="kpi-sub">R$ 1,37M</div>
+    </div>
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">Ticket Médio Mensal B2B</div>
+      <div class="kpi-value" style="font-size:22px">R$ 1,06M</div>
+      <div class="kpi-sub">Média Jan–Dez/25</div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">B2B vs B2C — Evolução Mensal</div>
+      <div class="chart-subtitle">Realizado Jan–Dez/25 · R$ mil</div>
+      <div class="chart-container"><canvas id="chartB2bB2c"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Mix de Receita por Mês</div>
+      <div class="chart-subtitle">Participação % B2B e B2C</div>
+      <div class="chart-container"><canvas id="chartMix"></canvas></div>
+    </div>
+    <div class="chart-card full-width">
+      <div class="chart-title">Receita Total: Orçado vs Realizado</div>
+      <div class="chart-subtitle">Jan–Dez/25 · R$ mil</div>
+      <div class="chart-container tall"><canvas id="chartReceitaAnual"></canvas></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const REALIZED = 12; // todos realizados
+
+const D = {
+  receita:      [1634094,1670723,1718202,1660607,1842911,1823459,1835377,1905959,2121948,2122262,2178792,2304742],
+  receita_orc:  [2159999,2060000,2300000,2600000,2720000,2820000,1933995,2009563,2237239,2326682,2419924,2322712],
+  b2b:          [824750,844871,871646,857438,993275,1025848,999290,1073534,1243307,1291187,1321288,1369811],
+  b2c:          [809345,825852,846557,803169,849636,797611,836087,832425,878641,831075,857504,934931],
+  deducoes:     [82862,126934,236985,166672,168604,148033,135943,137481,154749,94424,112677,104076],
+  custos_op:    [185834,183633,177290,190846,192477,215155,254683,288534,311663,342821,362772,380831],
+  impostos:     [183836,180162,193298,131472,145090,143039,65867,155371,171105,171562,177974,188586],
+  lucro_bruto:  [1181562,1179994,1110629,1171616,1336740,1317233,1378884,1324573,1484431,1513455,1525370,1631249],
+  desp_op:      [1111824,1118418,1048489,1150723,1103566,1084911,1072199,1135024,1036872,991975,1108174,1173805],
+  desp_mkt:     [132221,198262,125595,152886,134404,118914,134580,111453,138786,146752,147104,178283],
+  desp_ga:      [111530,165179,168743,193252,207867,178567,178379,190371,169474,164882,179829,165767],
+  desp_pessoal: [833363,720514,719468,769988,723013,748630,721761,797466,694480,645942,746922,795571],
+  desp_fin:     [34711,34463,34683,34597,38282,38800,37479,35734,34132,34399,34318,34184],
+  ebitda:       [69737,61576,62140,20893,233174,232322,306685,189548,447559,521480,417196,457444],
+  ebitda_orc:   [448839,120183,172190,368138,546610,404993,29145,199465,220340,336459,161874,180113],
+  lucro_liq:    [47336,42640,43012,-68261,97829,45820,120980,3049,239501,317727,209563,299021],
+  lucro_liq_orc:[298234,96349,115645,244971,362763,269295,21236,133647,147425,224063,108837,144892],
+};
+
+const BRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(v);
+const BRLk = v => {
+  const a = Math.abs(v);
+  if (a>=1e6) return (v<0?'-':'')+'R$ '+(a/1e6).toFixed(2).replace('.',',')+'M';
+  if (a>=1e3) return (v<0?'-':'')+'R$ '+(a/1e3).toFixed(0)+'K';
+  return BRL(v);
+};
+
+const CLR = { orange:'#F47A20', green:'#1B5E4B', red:'#d73b3b', yellow:'#e8a020', teal:'#0e9f8e', gray:'#9ca3af', blue:'#1a56db' };
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.color = '#6b6356';
+
+/* ---- YTD CHARTS ---- */
+new Chart(document.getElementById('chartEvolucao'), {
+  type:'line',
+  data:{
+    labels: MONTHS,
+    datasets:[
+      { label:'Receita', data:D.receita.map(v=>v/1000), borderColor:CLR.orange, backgroundColor:'rgba(244,122,32,0.07)', borderWidth:2.5, tension:0.35, fill:true, pointRadius:4, pointBackgroundColor:CLR.orange },
+      { label:'Desp. Operacionais', data:D.desp_op.map(v=>v/1000), borderColor:CLR.red, backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:4, pointBackgroundColor:CLR.red },
+      { label:'EBITDA', data:D.ebitda.map(v=>v/1000), borderColor:CLR.green, backgroundColor:'rgba(27,94,75,0.07)', borderWidth:2, tension:0.35, fill:true, pointRadius:4, pointBackgroundColor:CLR.green },
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    plugins:{ legend:{position:'top', labels:{boxWidth:12,padding:16,font:{size:12}}}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: R$ ${ctx.parsed.y.toFixed(0)}K`}} },
+    scales:{ x:{grid:{color:'#f0e8df'}}, y:{grid:{color:'#f0e8df'}, ticks:{callback:v=>'R$'+v+'K'}} }
+  }
+});
+
+new Chart(document.getElementById('chartOrcRealReceita'), {
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      { label:'Orçado', data:D.receita_orc.map(v=>v/1000), backgroundColor:'rgba(244,122,32,0.2)', borderColor:CLR.orange, borderWidth:1 },
+      { label:'Realizado', data:D.receita.map(v=>v/1000), backgroundColor:CLR.orange, borderWidth:0, borderRadius:4 },
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'#f0e8df'}, ticks:{callback:v=>'R$'+v+'K'}}} }
+});
+
+new Chart(document.getElementById('chartEbitdaMensal'), {
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      { label:'Orçado', data:D.ebitda_orc.map(v=>v/1000), type:'line', borderColor:CLR.green, backgroundColor:'transparent', borderWidth:2, tension:0.35, pointRadius:3 },
+      { label:'Realizado', data:D.ebitda.map(v=>v/1000), backgroundColor:D.ebitda.map(v=>v>=0?CLR.green:CLR.red), borderRadius:4 },
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}}, scales:{x:{grid:{display:false}}, y:{grid:{color:'#f0e8df'}, ticks:{callback:v=>'R$'+v+'K'}}} }
+});
+
+/* ---- MENSAL ---- */
+let currentMonth = 11;
+let dreMesChart=null, despDoughChart=null;
+
+function buildMonthSelector(){
+  const el=document.getElementById('monthSelector');
+  MONTHS.forEach((m,i)=>{
+    const btn=document.createElement('button');
+    btn.className='month-btn'+(i===currentMonth?' active':'');
+    btn.textContent=m;
+    btn.onclick=()=>{currentMonth=i;renderMensal();};
+    el.appendChild(btn);
+  });
+}
+
+function renderMensal(){
+  const m=currentMonth;
+  document.querySelectorAll('.month-btn').forEach((b,i)=>b.classList.toggle('active',i===m));
+  document.getElementById('dreSubtitle').textContent=MONTHS[m]+'/25 — Realizado';
+  document.getElementById('dreTableTitle').textContent='DRE — '+MONTHS[m]+'/25';
+
+  const rec=D.receita[m], rec_o=D.receita_orc[m];
+  const lucro=D.lucro_liq[m], ebitda=D.ebitda[m], ebitda_o=D.ebitda_orc[m];
+  const lb=D.lucro_bruto[m];
+
+  document.getElementById('kpiMensal').innerHTML=`
+    <div class="kpi-card accent-orange">
+      <div class="kpi-label">Receita ${MONTHS[m]}</div>
+      <div class="kpi-value">${BRLk(rec)}</div>
+      <div class="kpi-sub">Orçado: ${BRLk(rec_o)} <span class="badge ${rec>=rec_o?'up':'down'}">${rec>=rec_o?'▲':'▼'} ${Math.abs((rec/rec_o-1)*100).toFixed(1)}%</span></div>
+    </div>
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">EBITDA ${MONTHS[m]}</div>
+      <div class="kpi-value">${BRLk(ebitda)}</div>
+      <div class="kpi-sub">Margem: <strong>${(ebitda/rec*100).toFixed(1)}%</strong> · Orç: ${(ebitda_o/rec_o*100).toFixed(1)}%</div>
+    </div>
+    <div class="kpi-card ${lucro>=0?'accent-green':'accent-red'}">
+      <div class="kpi-label">Lucro Líquido ${MONTHS[m]}</div>
+      <div class="kpi-value">${BRLk(lucro)}</div>
+      <div class="kpi-sub">Margem: <strong>${(lucro/rec*100).toFixed(1)}%</strong></div>
+    </div>
+    <div class="kpi-card accent-yellow">
+      <div class="kpi-label">Lucro Bruto ${MONTHS[m]}</div>
+      <div class="kpi-value">${BRLk(lb)}</div>
+      <div class="kpi-sub">Margem Bruta: <strong>${(lb/rec*100).toFixed(1)}%</strong></div>
+    </div>
+  `;
+
+  if(dreMesChart)dreMesChart.destroy();
+  dreMesChart=new Chart(document.getElementById('chartDreMes'),{
+    type:'bar',
+    data:{
+      labels:['Receita','(-)Ded.','(-)Custos','(-)Imp.','=L.Bruto','(-)Desp.Op.','=EBITDA','=L.Líquido'],
+      datasets:[{
+        data:[D.receita[m],-D.deducoes[m],-D.custos_op[m],-D.impostos[m],D.lucro_bruto[m],-D.desp_op[m],D.ebitda[m],D.lucro_liq[m]].map(v=>v/1000),
+        backgroundColor:[CLR.orange,'rgba(215,59,59,0.7)','rgba(215,59,59,0.7)','rgba(215,59,59,0.7)',CLR.green,'rgba(215,59,59,0.7)',D.ebitda[m]>=0?CLR.teal:CLR.red,D.lucro_liq[m]>=0?CLR.green:CLR.red],
+        borderRadius:5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#f0e8df'},ticks:{callback:v=>'R$'+v+'K'}}}}
+  });
+
+  if(despDoughChart)despDoughChart.destroy();
+  despDoughChart=new Chart(document.getElementById('chartDespDough'),{
+    type:'doughnut',
+    data:{
+      labels:['Pessoal','G&A','Vendas & MKT','Financeiras'],
+      datasets:[{data:[D.desp_pessoal[m],D.desp_ga[m],D.desp_mkt[m],D.desp_fin[m]].map(v=>v/1000),backgroundColor:[CLR.green,CLR.orange,CLR.teal,CLR.gray],borderWidth:2,borderColor:'white'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:ctx=>` R$ ${ctx.parsed.toFixed(0)}K`}}}}
+  });
+
+  // Table
+  const dreRows=[
+    {label:'(=) Receita Operacional',orc:D.receita_orc[m],real:D.receita[m],type:'group'},
+    {label:'(+) B2B',orc:null,real:D.b2b[m],type:'sub'},
+    {label:'(+) B2C',orc:null,real:D.b2c[m],type:'sub'},
+    {label:'(-) Deduções',orc:null,real:-D.deducoes[m],type:'sub',isNeg:true},
+    {label:'(-) Custos Diretos',orc:null,real:-D.custos_op[m],type:'sub',isNeg:true},
+    {label:'(-) Impostos',orc:null,real:-D.impostos[m],type:'sub',isNeg:true},
+    {label:'(=) Lucro Bruto',orc:null,real:D.lucro_bruto[m],type:'highlight'},
+    {label:'(=) Despesas Operacionais',orc:null,real:-D.desp_op[m],type:'group',isNeg:true},
+    {label:'(-) Pessoal',orc:null,real:-D.desp_pessoal[m],type:'sub',isNeg:true},
+    {label:'(-) G & A',orc:null,real:-D.desp_ga[m],type:'sub',isNeg:true},
+    {label:'(-) Vendas & MKT',orc:null,real:-D.desp_mkt[m],type:'sub',isNeg:true},
+    {label:'(-) Financeiras',orc:null,real:-D.desp_fin[m],type:'sub',isNeg:true},
+    {label:'(=) EBITDA',orc:D.ebitda_orc[m],real:D.ebitda[m],type:'total'},
+    {label:'(=) Lucro Líquido',orc:D.lucro_liq_orc[m],real:D.lucro_liq[m],type:'total'},
+  ];
+  const tbody=document.getElementById('dreTableBody');
+  tbody.innerHTML='';
+  dreRows.forEach(row=>{
+    const varR=row.orc!==null?row.real-row.orc:null;
+    const varPct=row.orc&&row.orc!==0?varR/Math.abs(row.orc):null;
+    const av=row.real/D.receita[m];
+    const isPos=row.isNeg?(varR!==null?varR<=0:true):(varR!==null?varR>=0:true);
+    const tr=document.createElement('tr');
+    tr.className=row.type==='total'?'total-row':row.type==='group'?'group-header':row.type==='highlight'?'highlight-row':'sub-row';
+    tr.innerHTML=`
+      <td>${row.label}</td>
+      <td>${row.orc!==null?BRL(row.orc):'—'}</td>
+      <td>${BRL(row.real)}</td>
+      <td class="${varR!==null?(isPos?'var-pos':'var-neg'):''}">${varR!==null?BRL(varR):'—'}</td>
+      <td class="${varPct!==null?(isPos?'var-pos':'var-neg'):''}">${varPct!==null?(varPct*100).toFixed(1)+'%':'—'}</td>
+      <td>${(av*100).toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+buildMonthSelector();
+renderMensal();
+
+/* ---- DRE ANUAL ---- */
+function buildDreAnual(){
+  const rows=[
+    {label:'RECEITA OPERACIONAL',key:'receita',orc_key:'receita_orc',type:'group',neg:false},
+    {label:'B2B',key:'b2b',type:'sub',neg:false},
+    {label:'B2C',key:'b2c',type:'sub',neg:false},
+    {label:'(-) Deduções',key:'deducoes',type:'sub',neg:true},
+    {label:'(-) Custos Diretos',key:'custos_op',type:'sub',neg:true},
+    {label:'(-) Impostos',key:'impostos',type:'sub',neg:true},
+    {label:'LUCRO BRUTO',key:'lucro_bruto',type:'total',neg:false},
+    {label:'(-) Despesas Operacionais',key:'desp_op',orc_key:'desp_op',type:'group',neg:true},
+    {label:'(-) Pessoal',key:'desp_pessoal',type:'sub',neg:true},
+    {label:'(-) G & A',key:'desp_ga',type:'sub',neg:true},
+    {label:'(-) Vendas & MKT',key:'desp_mkt',type:'sub',neg:true},
+    {label:'(-) Financeiras',key:'desp_fin',type:'sub',neg:true},
+    {label:'EBITDA',key:'ebitda',orc_key:'ebitda_orc',type:'total',neg:false},
+    {label:'LUCRO LÍQUIDO',key:'lucro_liq',orc_key:'lucro_liq_orc',type:'total',neg:false},
+  ];
+  const tbody=document.getElementById('dreAnualBody');
+  rows.forEach(row=>{
+    const vals=D[row.key];
+    const total=vals.reduce((a,b)=>a+b,0);
+    const orc_total=row.orc_key?D[row.orc_key].reduce((a,b)=>a+b,0):null;
+    const varPct=orc_total&&orc_total!==0?(total-orc_total)/Math.abs(orc_total):null;
+    const isGood=row.neg?(orc_total?total<=orc_total:true):(orc_total?total>=orc_total:true);
+
+    const tr=document.createElement('tr');
+    tr.className=row.type==='total'?'total-row':row.type==='group'?'group-header':'sub-row';
+
+    let cells=`<td>${row.label}</td>`;
+    vals.forEach(v=>{
+      const disp=row.neg?-v:v;
+      cells+=`<td>${(disp/1000).toFixed(0)}K</td>`;
+    });
+    const dispTotal=row.neg?-total:total;
+    cells+=`<td style="background:#d4edda;font-weight:700;color:#1b5e20">${BRLk(dispTotal)}</td>`;
+    cells+=`<td style="background:#fff3e0">${orc_total?BRLk(row.neg?-orc_total:orc_total):'—'}</td>`;
+    cells+=`<td style="background:#e3f2fd" class="${varPct!==null?(isGood?'pos':'neg'):''}">${varPct!==null?(varPct*100).toFixed(1)+'%':'—'}</td>`;
+    tr.innerHTML=cells;
+    tbody.appendChild(tr);
+  });
+}
+buildDreAnual();
+
+/* ---- DESPESAS CHARTS ---- */
+new Chart(document.getElementById('chartDespYtd'),{
+  type:'doughnut',
+  data:{
+    labels:['Pessoal','G & A','Vendas & MKT','Financeiras'],
+    datasets:[{
+      data:[D.desp_pessoal,D.desp_ga,D.desp_mkt,D.desp_fin].map(a=>a.reduce((x,y)=>x+y,0)/1000),
+      backgroundColor:[CLR.green,CLR.orange,CLR.teal,CLR.gray],
+      borderWidth:3,borderColor:'white'
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:14,font:{size:12},padding:12}},tooltip:{callbacks:{label:ctx=>` R$ ${ctx.parsed.toFixed(0)}K (${((ctx.parsed/ctx.dataset.data.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`}}}}
+});
+
+new Chart(document.getElementById('chartPessoalPct'),{
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'Pessoal',data:D.desp_pessoal.map((v,i)=>+(v/D.receita[i]*100).toFixed(1)),backgroundColor:CLR.green,borderRadius:3,stack:'s'},
+      {label:'G&A',data:D.desp_ga.map((v,i)=>+(v/D.receita[i]*100).toFixed(1)),backgroundColor:CLR.orange,borderRadius:3,stack:'s'},
+      {label:'MKT',data:D.desp_mkt.map((v,i)=>+(v/D.receita[i]*100).toFixed(1)),backgroundColor:CLR.teal,borderRadius:3,stack:'s'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f0e8df'},ticks:{callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('chartDespStack'),{
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'Pessoal',data:D.desp_pessoal.map(v=>v/1000),backgroundColor:CLR.green,stack:'a'},
+      {label:'G & A',data:D.desp_ga.map(v=>v/1000),backgroundColor:CLR.orange,stack:'a'},
+      {label:'Vendas & MKT',data:D.desp_mkt.map(v=>v/1000),backgroundColor:CLR.teal,stack:'a'},
+      {label:'Financeiras',data:D.desp_fin.map(v=>v/1000),backgroundColor:CLR.gray,stack:'a'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f0e8df'},ticks:{callback:v=>'R$'+v+'K'}}}}
+});
+
+/* ---- RECEITAS CHARTS ---- */
+new Chart(document.getElementById('chartB2bB2c'),{
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'B2B',data:D.b2b.map(v=>v/1000),backgroundColor:CLR.green,borderRadius:3,stack:'a'},
+      {label:'B2C',data:D.b2c.map(v=>v/1000),backgroundColor:CLR.orange,borderRadius:3,stack:'a'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f0e8df'},ticks:{callback:v=>'R$'+v+'K'}}}}
+});
+
+new Chart(document.getElementById('chartMix'),{
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'B2B %',data:D.b2b.map((v,i)=>+(v/(v+D.b2c[i])*100).toFixed(1)),backgroundColor:CLR.green,stack:'b'},
+      {label:'B2C %',data:D.b2c.map((v,i)=>+(v/(v+D.b2b[i])*100).toFixed(1)),backgroundColor:CLR.orange,stack:'b'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('chartReceitaAnual'),{
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'Orçado',data:D.receita_orc.map(v=>v/1000),backgroundColor:'rgba(244,122,32,0.2)',borderColor:CLR.orange,borderWidth:1},
+      {label:'Realizado',data:D.receita.map(v=>v/1000),backgroundColor:CLR.orange,borderWidth:0,borderRadius:4},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0e8df'},ticks:{callback:v=>'R$'+v+'K'}}}}
+});
+</script>
+</body>
+</html>
